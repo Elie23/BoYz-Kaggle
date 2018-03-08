@@ -13,7 +13,8 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 
 #DATA SPLIT BOIZ
-x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.20, random_state=42)
+x1 = x/255.
+x_train, x_val, y_train, y_val = train_test_split(x1, y, test_size=0.20, random_state=42)
 print x_train.shape, y_train.shape, x_val.shape, y_val.shape
 
 #GRINDING
