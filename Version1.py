@@ -26,14 +26,15 @@ x_train = scaler.transform(x_train)
 # Scale the validation set
 x_val = scaler.transform(x_val)
 
-#GRINDING
-for i in np.logspace(-4,4,9):
-    C = i
-    print C
+#SVM
+def SVM(x_train, y_train, x_val, y_val, C):
     svm = LinearSVC(C=C)
     svm_fit = svm.fit(x_train, y_train).predict(x_val)
-    print C, f1_score(y_val,svm_fit, average='macro')
+    return f1_score(y_val,svm_fit, average='macro')
 
+#Find the best C
+for i in np.linspace(1e-6,1e-5,10):
+    print SVM(x_train, y_train, x_val, y_val, i)
 
     
 # NEURAL NETWORKS QUI MARCHE PAS    
