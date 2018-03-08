@@ -44,7 +44,6 @@ def sigmoid (x):
 def derivatives_sigmoid(x):
     return x * (1 - x)
 
-
 def NN_predict(x_train,y_train,step,epoch) :
     y_train = np.resize(y_train,(len(y_train),1))
     hiddenlayer_neurons=100
@@ -54,15 +53,15 @@ def NN_predict(x_train,y_train,step,epoch) :
     bh=2*np.random.uniform(size=(1,hiddenlayer_neurons))-1
     wout=2*np.random.uniform(size=(hiddenlayer_neurons,output_neurons))-1
     bout=2*np.random.uniform(size=(1,output_neurons))-1
-    print(wout)
+    #print(wout)
     
     for i in range(epoch):
         #Forward Propogation
-        hidden_layer_input1=np.matmul(x_train,wh)
-        hidden_layer_input=hidden_layer_input1 + bh
+        print i
+        hidden_layer_input = np.matmul(x_train,wh) + bh
+        print np.argmax(hidden_layer_input), np.ravel(hidden_layer_input)[np.argmax(hidden_layer_input)]
         hiddenlayer_activations = sigmoid(hidden_layer_input)
-        output_layer_input1=np.matmul(hiddenlayer_activations,wout)
-        output_layer_input= output_layer_input1+ bout
+        output_layer_input = np.matmul(hiddenlayer_activations,wout) + bout
         pred = sigmoid(output_layer_input)
         
         #Backpropagation
@@ -77,7 +76,8 @@ def NN_predict(x_train,y_train,step,epoch) :
         wh += x_train.T.dot(d_hiddenlayer) * step
         bh += np.sum(d_hiddenlayer, axis=0,keepdims=True) * step
     return pred,output_layer_input
-        
 
-NN_pred = NN_predict(x2,y2,0.1,100)
+NN_pred = NN_predict(x_train,y_train,1e-6,10)
 
+idxs = np.argmax(NN_pred[0], axis = 1)
+print float((idxs == y_train[idxs]).sum()) / len(NN_pred[0]) *100
