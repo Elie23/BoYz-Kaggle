@@ -23,7 +23,7 @@ scaler = StandardScaler().fit(x_train)
 # Scale the train set
 x_train = scaler.transform(x_train)
 
-# Scale the test set
+# Scale the validation set
 x_val = scaler.transform(x_val)
 
 #GRINDING
