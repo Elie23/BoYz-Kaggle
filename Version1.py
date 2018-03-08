@@ -26,7 +26,7 @@ for i in np.logspace(-10,-6,5):
 
 
     
-# NEURAL NETWORKS POUR GROS GARS SEULEMENT    
+# NEURAL NETWORKS QUI MARCHE PAS    
 def sigmoid (x):
     return 1/(1 + np.exp(-x))
 
@@ -35,20 +35,22 @@ def derivatives_sigmoid(x):
 
 
 def NN_predict(x_train,y_train,step,epoch) :
-    hiddenlayer_neurons=10
+    y_train = np.resize(y_train,(len(y_train),1))
+    hiddenlayer_neurons=100
     output_neurons=10
     inputlayer_neurons = x_train.shape[1] #first layer corresponds to features
-    wh=np.random.uniform(size=(inputlayer_neurons,hiddenlayer_neurons))
-    bh=np.random.uniform(size=(1,hiddenlayer_neurons))
-    wout=np.random.uniform(size=(hiddenlayer_neurons,output_neurons))
-    bout=np.random.uniform(size=(1,output_neurons))
+    wh=2*np.random.uniform(size=(inputlayer_neurons,hiddenlayer_neurons))-1
+    bh=2*np.random.uniform(size=(1,hiddenlayer_neurons))-1
+    wout=2*np.random.uniform(size=(hiddenlayer_neurons,output_neurons))-1
+    bout=2*np.random.uniform(size=(1,output_neurons))-1
+    print(wout)
     
     for i in range(epoch):
         #Forward Propogation
-        hidden_layer_input1=np.dot(x_train,wh)
+        hidden_layer_input1=np.matmul(x_train,wh)
         hidden_layer_input=hidden_layer_input1 + bh
         hiddenlayer_activations = sigmoid(hidden_layer_input)
-        output_layer_input1=np.dot(hiddenlayer_activations,wout)
+        output_layer_input1=np.matmul(hiddenlayer_activations,wout)
         output_layer_input= output_layer_input1+ bout
         pred = sigmoid(output_layer_input)
         
@@ -57,13 +59,14 @@ def NN_predict(x_train,y_train,step,epoch) :
         slope_output_layer = derivatives_sigmoid(pred)
         slope_hidden_layer = derivatives_sigmoid(hiddenlayer_activations)
         d_output = E * slope_output_layer
-        Error_at_hidden_layer = d_output.dot(wout.T)
+        Error_at_hidden_layer = np.matmul(d_output,wout.T)
         d_hiddenlayer = Error_at_hidden_layer * slope_hidden_layer
         wout += hiddenlayer_activations.T.dot(d_output) * step
         bout += np.sum(d_output, axis=0,keepdims=True) * step
         wh += x_train.T.dot(d_hiddenlayer) * step
         bh += np.sum(d_hiddenlayer, axis=0,keepdims=True) * step
-    return pred
+    return pred,output_layer_input
         
 
-NN_pred = NN_predict(x,y,0.1,1)
+NN_pred = NN_predict(x2,y2,0.1,100)
+
