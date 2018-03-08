@@ -75,9 +75,15 @@ def NN_predict(x_train,y_train,step,epoch) :
         bout += np.sum(d_output, axis=0,keepdims=True) * step
         wh += x_train.T.dot(d_hiddenlayer) * step
         bh += np.sum(d_hiddenlayer, axis=0,keepdims=True) * step
-    return pred,output_layer_input
+    return pred,output_layer_input, wout, bout, wh, bh
 
-NN_pred = NN_predict(x_train,y_train,1e-6,10)
+def NN_validation(x_val, y_val, wout, bout, wh, bh):
+    hidden_layer_input = np.matmul(x_val,wh) + bh
+    hiddenlayer_activations = sigmoid(hidden_layer_input)
+    output_layer_input = np.matmul(hiddenlayer_activations,wout) + bout
+    pred = sigmoid(output_layer_input)
+    return f1_score(y_val,np.argmax(pred, axis = 1), average='macro')
 
-idxs = np.argmax(NN_pred[0], axis = 1)
-print float((idxs == y_train[idxs]).sum()) / len(NN_pred[0]) *100
+NN_pred, output_layertrain, wout, bout, wh, bh = NN_predict(x_train,y_train, 1e-4, 10)
+#Validation f1-score
+print NN_validation(x_val, y_val, wout, bout, wh, bh)
