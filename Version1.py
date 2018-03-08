@@ -3,7 +3,7 @@ import numpy   as np
 from scipy import misc
 x_test = np.loadtxt("test_x.csv", delimiter=",")
 print 'c long en ta...'
-x = np.loadtxt("train_x.csv", delimiter=",") # load from text 
+x1 = np.loadtxt("train_x.csv", delimiter=",") # load from text 
 print 'bar..'
 y = np.loadtxt("train_y.csv", delimiter=",") 
 print 'nak!'
@@ -13,7 +13,7 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 
 #DATA SPLIT BOIZ
-x1 = x/255.
+x = x1/255.
 x_train, x_val, y_train, y_val = train_test_split(x1, y, test_size=0.20, random_state=42)
 print x_train.shape, y_train.shape, x_val.shape, y_val.shape
 
