@@ -3,7 +3,7 @@ import numpy   as np
 from scipy import misc
 x_test = np.loadtxt("test_x.csv", delimiter=",")
 print 'c long en ta...'
-x1 = np.loadtxt("train_x.csv", delimiter=",") # load from text 
+x = np.loadtxt("train_x.csv", delimiter=",") # load from text 
 print 'bar..'
 y = np.loadtxt("train_y.csv", delimiter=",") 
 print 'nak!'
@@ -11,14 +11,23 @@ print 'nak!'
 from sklearn.svm import LinearSVC
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 #DATA SPLIT BOIZ
-x = x1/255.
-x_train, x_val, y_train, y_val = train_test_split(x1, y, test_size=0.20, random_state=42)
+x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.20, random_state=42)
 print x_train.shape, y_train.shape, x_val.shape, y_val.shape
 
+#Preprocessing
+scaler = StandardScaler().fit(x_train)
+
+# Scale the train set
+x_train = scaler.transform(x_train)
+
+# Scale the test set
+x_val = scaler.transform(x_val)
+
 #GRINDING
-for i in np.logspace(-10,-6,5):
+for i in np.logspace(-4,4,9):
     C = i
     print C
     svm = LinearSVC(C=C)
