@@ -234,4 +234,4 @@ def NN_validation(x_val, y_val, wout, bout, wh1, bh1, wh2, bh2):
     #print y_val, np.argmax(pred, axis = 1)
     return precision_score(y_val, np.argmax(pred, axis = 1), average='macro') #f1_score(y_val,np.argmax(pred, axis = 1), average='macro')
 
-NN_pred, output_layertrain, wout, bout, wh1, bh1, wh2, bh2, wh3, bh3 = NN_predict(x_train,y_trainNN, y_train, x_val, y_valNN, y_val, 1e-5, 10000, 0)
+NN_pred, output_layertrain, wout, bout, wh1, bh1, wh2, bh2, wh3, bh3 = NN_predict(x_train,y_trainNN, y_train, x_val, y_valNN, y_val, 1e-4, 20000, 0.5)
