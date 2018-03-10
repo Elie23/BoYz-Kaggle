@@ -219,6 +219,13 @@ def NN_predict(x_train,y_trainNN,y_train,x_val,y_valNN,y_val,step,epoch,l2) :
         f1val = NN_validation(x_val, y_val, wout, bout, wh1, bh1, wh2, bh2)
         f1train = precision_score(y_train, np.argmax(pred, axis = 1), average='macro') #f1_score(y_train,np.argmax(pred, axis = 1), average='macro')
         print "step:", i, "Error :", (0.5*E**2).sum(), "f1 on validation data:", f1val, "on train :", f1train
+        if i % 10 == 0:
+            np.savetxt('wh1-test.txt',wh1,delimiter=',')
+            np.savetxt('wh2-test.txt',wh2,delimiter=',')
+            np.savetxt('wout-test.txt',wout,delimiter=',')
+            databh = np.concatenate((bh1.reshape(hiddenlayer_neurons,1),bh2.reshape(hiddenlayer_neurons,1)),axis=1)
+            np.savetxt('b-test.txt',databh,delimiter=',')
+            np.savetxt('bout-test.txt',bout.reshape(output_neurons,1),delimiter=',')
     return pred,output_layer_input, wout, bout, wh1, bh1, wh2, bh2
 
 def NN_validation(x_val, y_val, wout, bout, wh1, bh1, wh2, bh2):
@@ -234,4 +241,4 @@ def NN_validation(x_val, y_val, wout, bout, wh1, bh1, wh2, bh2):
     #print y_val, np.argmax(pred, axis = 1)
     return precision_score(y_val, np.argmax(pred, axis = 1), average='macro') #f1_score(y_val,np.argmax(pred, axis = 1), average='macro')
 
-NN_pred, output_layertrain, wout, bout, wh1, bh1, wh2, bh2, wh3, bh3 = NN_predict(x_train,y_trainNN, y_train, x_val, y_valNN, y_val, 1e-4, 20000, 0.5)
+NN_pred, output_layertrain, wout, bout, wh1, bh1, wh2, bh2 = NN_predict(x_train,y_trainNN, y_train, x_val, y_valNN, y_val, 1e-4, 20000, 0.5)
