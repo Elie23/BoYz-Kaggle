@@ -18,11 +18,9 @@ y_train = np.loadtxt("train_y.csv", delimiter=",")
 # Preprocessing
 x_test[x_test < 255] = -1
 x_train[x_train < 255] = -1
-y_train[y_train < 255] = -1
 
 x_test[x_test == 255] = 1
 x_train[x_train == 255] = 1
-y_train[y_train == 255] = 1
 
 # Splitting the datas
 x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.20, random_state=42)
