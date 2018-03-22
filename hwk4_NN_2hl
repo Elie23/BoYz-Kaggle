@@ -1,0 +1,138 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Mar 19 10:59:08 2018
+
+@author: maxen
+"""
+
+import numpy as np
+from sklearn.metrics import precision_score
+from sklearn.metrics import f1_score
+from sklearn.model_selection import train_test_split
+
+# Loading the datas
+x_test = np.loadtxt("test_x.csv", delimiter=",")
+x_train = np.loadtxt("train_x.csv", delimiter=",")
+y_train = np.loadtxt("train_y.csv", delimiter=",") 
+
+# Preprocessing
+x_test[x_test < 255] = -1
+x_train[x_train < 255] = -1
+
+x_test[x_test == 255] = 1
+x_train[x_train == 255] = 1
+
+# Splitting the datas
+x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.20, random_state=42)
+
+# Neural Network
+def sigmoid (x):
+    return 1/(1 + np.exp(-x))
+
+def derivatives_sigmoid(x):
+    return x * (1 - x)
+
+def NN_predict(x_train, y_trainNN, y_train, x_val, y_valNN, y_val, step, epoch) :
+    hiddenlayer_neurons = 50
+    output_neurons = 10
+    inputlayer_neurons = x_train.shape[1] #first layer corresponds to features
+    
+    wh1 = np.random.uniform(low =-1, high=1, size=(inputlayer_neurons,hiddenlayer_neurons))
+    bh1 = np.random.uniform(low =-1, high=1, size=(1,hiddenlayer_neurons))
+    wh2 = np.random.uniform(low =-1, high=1, size=(hiddenlayer_neurons,hiddenlayer_neurons))
+    bh2 = np.random.uniform(low =-1, high=1, size=(1,hiddenlayer_neurons))
+    wout = np.random.uniform(low =-1, high=1, size=(hiddenlayer_neurons,output_neurons))
+    bout = np.random.uniform(low =-1, high=1, size=(1,output_neurons))
+    
+    listErrorTr = []
+    listErrorVal = []
+    listScoreTrain = []
+    listScoreVal = []
+    for i in range(epoch):
+        #Forward Propogation
+        hidden_layer_input1 = np.matmul(x_train,wh1) + bh1
+        hiddenlayer_activations1 = sigmoid(hidden_layer_input1)
+        
+        hidden_layer_input2 = np.matmul(hiddenlayer_activations1,wh2) + bh2
+        hiddenlayer_activations2 = sigmoid(hidden_layer_input2)
+        
+        output_layer_input = np.matmul(hiddenlayer_activations2,wout) + bout
+        pred = sigmoid(output_layer_input)
+        
+        hidden_layer_input1val = np.matmul(x_val,wh1) + bh1
+        hiddenlayer_activations1val = sigmoid(hidden_layer_input1val)
+        
+        hidden_layer_input2val = np.matmul(hiddenlayer_activations1val,wh2) + bh2
+        hiddenlayer_activations2val = sigmoid(hidden_layer_input2val)
+        
+        output_layer_inputval = np.matmul(hiddenlayer_activations2val,wout) + bout
+        predval = sigmoid(output_layer_inputval)
+    
+        #Backpropagation
+        E = (y_trainNN-pred)
+        
+        slope_output_layer = derivatives_sigmoid(pred)
+        slope_hidden_layer1 = derivatives_sigmoid(hiddenlayer_activations1)
+        slope_hidden_layer2 = derivatives_sigmoid(hiddenlayer_activations2)
+        d_output = E * slope_output_layer
+        
+        Error_at_hidden_layer = np.matmul(d_output,wout.T)
+        d_hiddenlayer1 = Error_at_hidden_layer * slope_hidden_layer1
+        d_hiddenlayer2 = Error_at_hidden_layer * slope_hidden_layer2
+        wout = hiddenlayer_activations2.T.dot(d_output) * step + wout
+        bout = np.sum(d_output, axis=0,keepdims=True) * step + bout
+        wh1 = x_train.T.dot(d_hiddenlayer1) * step + wh1
+        bh1 = np.sum(d_hiddenlayer1, axis=0,keepdims=True) * step + bh1
+        wh2 = hiddenlayer_activations1.T.dot(d_hiddenlayer2) * step + wh2
+        bh2 = np.sum(d_hiddenlayer2, axis=0,keepdims=True) * step + bh2
+        
+        #F1-score
+        E_val = (y_valNN-predval)
+        f1val = NN_validation(x_val, y_val, wout, bout, wh1, bh1, wh2, bh2)
+        f1train = f1_score(y_train, np.argmax(pred, axis = 1), average='macro') #f1_score(y_train,np.argmax(pred, axis = 1), average='macro')
+        print ("step:", i, "Error train:", (0.5*E**2).sum(), "Error val:", (0.5*E_val**2).sum(), "f1 on validation data:", f1val, "on train :", f1train)
+        
+        if i % 10 == 0:
+            listErrorTr.append(str((0.5*E**2).sum()))
+            listErrorVal.append(str((0.5*E_val**2).sum()))
+            listScoreTrain.append(str(f1train))
+            listScoreVal.append(str(f1val))
+        
+    # Writing in a file
+    info_NN = "Neurons in h layer :" + str(hiddenlayer_neurons) + " step : " + str(step) + " epoch : " + str(epoch) + " f1 on validation : " + str(f1val) + " f1 on training : " + str(f1train)   
+    listErrorTr = ",".join(listErrorTr)
+    listErrorVal = ",".join(listErrorVal)
+    listScoreTrain = ",".join(listScoreTrain)
+    listScoreVal = ",".join(listScoreVal)
+    with open("NN_data_analysis.txt", 'w', encoding="utf8") as fileNN:
+        fileNN.write(info_NN)
+    with open("NN_ErrorTrain.txt", 'w', encoding="utf8") as fileNN:
+        fileNN.write(listErrorTr)
+    with open("NN_ErrorVal.txt", 'w', encoding="utf8") as fileNN:
+        fileNN.write(listErrorVal)
+    with open("NN_ScoreTrain.txt", 'w', encoding="utf8") as fileNN:
+        fileNN.write(listScoreTrain)
+    with open("NN_ScoreVal.txt", 'w', encoding="utf8") as fileNN:
+        fileNN.write(listScoreVal)
+    return pred,output_layer_input, wout, bout, wh1, bh1, wh2, bh2
+
+def NN_validation(x_val, y_val, wout, bout, wh1, bh1, wh2, bh2):
+    hidden_layer_input1 = np.matmul(x_val,wh1) + bh1
+    hiddenlayer_activations1 = sigmoid(hidden_layer_input1)
+    
+    hidden_layer_input2 = np.matmul(hiddenlayer_activations1,wh2) + bh2
+    hiddenlayer_activations2 = sigmoid(hidden_layer_input2)
+        
+    output_layer_input = np.matmul(hiddenlayer_activations2,wout) + bout
+    pred = sigmoid(output_layer_input)
+
+    return f1_score(y_val, np.argmax(pred, axis = 1), average='macro') #f1_score(y_val,np.argmax(pred, axis = 1), average='macro')
+
+y_trainNN = np.zeros(y_train.shape[0]*10).reshape(y_train.shape[0],10)
+y_valNN = np.zeros(y_val.shape[0]*10).reshape(y_val.shape[0],10)
+for i in range(y_train.shape[0]):
+    y_trainNN[i][int(y_train[i])] = 1   
+for i in range(y_val.shape[0]):
+    y_valNN[i][int(y_val[i])] = 1 
+
+NN_pred, output_layertrain, wout, bout, wh1, bh1, wh2, bh2 = NN_predict(x_train,y_trainNN, y_train, x_val, y_valNN, y_val, 1e-4, 10000)
